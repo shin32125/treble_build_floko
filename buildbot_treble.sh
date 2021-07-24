@@ -1,10 +1,10 @@
 #!/bin/bash
 echo ""
-echo "LineageOS 18.x Treble Buildbot"
+echo "FlokoROM v4 Treble Buildbot"
 echo "ATTENTION: this script syncs repo on each run"
-echo "Executing in 5 seconds - CTRL-C to exit"
+#echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
-sleep 5
+#sleep 5
 
 # Abort early on error
 set -eE
@@ -18,7 +18,7 @@ echo\
 
 START=`date +%s`
 BUILD_DATE="$(date +%Y%m%d)"
-BL=$PWD/treble_build_los
+BL=$PWD/treble_build_floko
 
 echo "Preparing local manifest"
 mkdir -p .repo/local_manifests
@@ -126,7 +126,7 @@ sleep 5
 echo ""
 
 export WITHOUT_CHECK_API=true
-export WITH_SU=true
+export WITH_SU=false
 mkdir -p ~/build-output/
 
 buildVariant() {
@@ -134,13 +134,13 @@ buildVariant() {
     make installclean
     make -j$(nproc --all) systemimage
     make vndk-test-sepolicy
-    mv $OUT/system.img ~/build-output/lineage-18.1-$BUILD_DATE-UNOFFICIAL-${1}.img
+    mv $OUT/system.img ~/build-output/FlokoROM-v4-$BUILD_DATE-UNOFFICIAL-${1}.img
 }
 
-buildVariant treble_arm_bvS
-buildVariant treble_a64_bvS
-buildVariant treble_arm64_bvS
-ls ~/build-output | grep 'lineage'
+#buildVariant treble_arm_bvS
+#buildVariant treble_a64_bvS
+buildVariant treble_arm64_bvN
+ls ~/build-output | grep 'FlokoROM'
 
 END=`date +%s`
 ELAPSEDM=$(($(($END-$START))/60))
