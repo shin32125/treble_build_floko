@@ -33,11 +33,13 @@ echo "Setting up build environment"
 source build/envsetup.sh &> /dev/null
 echo ""
 
+rm -rf vendor/seedvault/
+
 repopick 289372 # Messaging: Add "Mark as read" quick action for message notifications
 
 echo "Reverting LOS FOD implementation"
 cd frameworks/base
-git am $BL/patches/0001-Squashed-revert-of-LOS-FOD-implementation.patch
+git am $BL/patches/F0001-Squashed-revert-of-LOS-FOD-implementation.patch
 cd ../..
 cd frameworks/native
 git revert 381416d540ea92dca5f64cd48fd8c9dc887cac7b --no-edit # surfaceflinger: Add support for extension lib
@@ -58,16 +60,16 @@ cd build/make
 git am $BL/patches/0001-Make-broken-copy-headers-the-default.patch
 cd ../..
 cd frameworks/base
-git am $BL/patches/0001-UI-Revive-navbar-layout-tuning-via-sysui_nav_bar-tun.patch
+#git am $BL/patches/0001-UI-Revive-navbar-layout-tuning-via-sysui_nav_bar-tun.patch
 git am $BL/patches/0001-UI-Disable-wallpaper-zoom.patch
 git am $BL/patches/0001-Disable-vendor-mismatch-warning.patch
 cd ../..
 cd lineage-sdk
 git am $BL/patches/0001-sdk-Invert-per-app-stretch-to-fullscreen.patch
 cd ..
-cd packages/apps/Jelly
-git am $BL/patches/0001-Jelly-MainActivity-Restore-applyThemeColor.patch
-cd ../../..
+#cd packages/apps/Jelly
+#git am $BL/patches/0001-Jelly-MainActivity-Restore-applyThemeColor.patch
+#cd ../../..
 cd packages/apps/LineageParts
 git am $BL/patches/0001-LineageParts-Invert-per-app-stretch-to-fullscreen.patch
 cd ../../..
@@ -94,6 +96,8 @@ git am $BL/patches/0001-treble-Add-overlay-lineage.patch
 git am $BL/patches/0001-treble-Don-t-specify-config_wallpaperCropperPackage.patch
 git am $BL/patches/0001-treble-Don-t-handle-apns-conf.patch
 git am $BL/patches/0001-add-offline-charger-sepolicy.patch
+echo "PRODUCT_SHIPPING_API_LEVEL := 30" >> lineage.mk
+git commit -a -m "Add API level"
 cd ../../..
 cd frameworks/av
 git revert 5a5606dbd92f01de322c797a7128fce69902d067 --no-edit # camera: Allow devices to load custom CameraParameter code
@@ -105,9 +109,9 @@ cd packages/apps/Bluetooth
 git revert 4ceb47e32c1be30640e40f81b6f741942f8598ed --no-edit # Bluetooth: Reset packages/apps/Bluetooth to upstream
 cd ../../..
 cd system/core
-git am $BL/patches/0001-Revert-init-Add-vendor-specific-initialization-hooks.patch
+git am $BL/patches/F0001-Revert-init-Add-vendor-specific-initialization-hooks.patch
 git am $BL/patches/0001-Panic-into-recovery-rather-than-bootloader.patch
-git am $BL/patches/0001-Restore-sbin-for-Magisk-compatibility.patch
+git am $BL/patches/F0001-Restore-sbin-for-Magisk-compatibility.patch
 git am $BL/patches/0001-fix-offline-charger-v7.patch
 cd ../..
 cd system/hardware/interfaces
