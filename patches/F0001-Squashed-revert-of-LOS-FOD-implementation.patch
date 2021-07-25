@@ -1,9 +1,8 @@
-From cfc6cf10b64ef3ecba6586ed87dcf90d32918b4e Mon Sep 17 00:00:00 2001
-From: Andy CrossGate Yan <GeForce8800Ultra@gmail.com>
-Date: Tue, 13 Jul 2021 16:01:31 +0000
-Subject: [PATCH] Squashed revert of LOS FOD implementation
+From dc0eaf8e9d0d6ebb8848929e789d9196c508b12b Mon Sep 17 00:00:00 2001
+From: AndroPlus <hosigumayuugi@gmail.com>
+Date: Sun, 25 Jul 2021 15:21:04 +0900
+Subject: [PATCH 1/1] Squashed revert of LOS FOD implementation
 
-Better than having an ever-growing string of revert commands?
 ---
  .../internal/statusbar/IStatusBar.aidl        |   6 -
  .../internal/statusbar/IStatusBarService.aidl |   6 -
@@ -13,33 +12,32 @@ Better than having an ever-growing string of revert commands?
  packages/SystemUI/Android.bp                  |   2 -
  packages/SystemUI/AndroidManifest.xml         |   1 -
  .../res-keyguard/values/lineage_dimens.xml    |  20 -
- .../res/drawable-nodpi/fod_icon_pressed.png   | Bin 108 -> 0 bytes
- .../res/drawable/fod_icon_default.xml         |  25 -
+ .../res/drawable/fod_icon_default.xml         |  26 -
  packages/SystemUI/res/values/config.xml       |   1 -
- .../SystemUI/res/values/lineage_config.xml    |   4 -
+ .../SystemUI/res/values/lineage_config.xml    |   3 -
  .../keyguard/KeyguardSecurityContainer.java   |  15 +-
  .../keyguard/KeyguardUpdateMonitor.java       |   9 +-
  .../AuthBiometricFingerprintView.java         |  13 -
- .../biometrics/AuthBiometricView.java         |  30 +-
- .../systemui/biometrics/FODCircleView.java    | 555 ------------------
- .../biometrics/FODCircleViewImpl.java         | 132 -----
+ .../biometrics/AuthBiometricView.java         |  29 +-
+ .../systemui/biometrics/FODCircleView.java    | 742 ------------------
+ .../biometrics/FODCircleViewImpl.java         | 174 ----
  .../biometrics/FODCircleViewImplCallback.java |  25 -
  .../systemui/dagger/SystemUIBinder.java       |   7 -
- .../keyguard/KeyguardViewMediator.java        |  10 +-
+ .../keyguard/KeyguardViewMediator.java        |  14 +-
  .../systemui/statusbar/CommandQueue.java      |  28 -
+ .../KeyguardIndicationController.java         |  52 --
  .../notification/ActivityLaunchAnimator.java  |  21 +-
- .../systemui/statusbar/phone/StatusBar.java   |  74 +--
+ .../systemui/statusbar/phone/StatusBar.java   |  74 +-
  .../phone/StatusBarKeyguardViewManager.java   |  11 +-
  .../phone/dagger/StatusBarPhoneModule.java    |   7 +-
  .../ActivityLaunchAnimatorTest.java           |   6 +-
  .../statusbar/phone/StatusBarTest.java        |   5 +-
  services/core/Android.bp                      |   1 -
  .../biometrics/BiometricServiceBase.java      |   2 +-
- .../fingerprint/FingerprintService.java       | 112 ----
+ .../fingerprint/FingerprintService.java       | 116 ---
  .../statusbar/StatusBarManagerService.java    |  22 -
- 32 files changed, 20 insertions(+), 1145 deletions(-)
+ 32 files changed, 20 insertions(+), 1433 deletions(-)
  delete mode 100644 packages/SystemUI/res-keyguard/values/lineage_dimens.xml
- delete mode 100644 packages/SystemUI/res/drawable-nodpi/fod_icon_pressed.png
  delete mode 100644 packages/SystemUI/res/drawable/fod_icon_default.xml
  delete mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/FODCircleView.java
  delete mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/FODCircleViewImpl.java
@@ -271,7 +269,7 @@ index 68545928294..6554fd54f11 100644
      <integer name="config_maxVisibleNotificationIcons">4</integer>
      <integer name="config_maxVisibleNotificationIconsOnLock">5</integer>
 diff --git a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainer.java b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainer.java
-index bace9324ac9..a6a85b61a80 100644
+index bace9324ac9..1db2e32b8cd 100644
 --- a/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainer.java
 +++ b/packages/SystemUI/src/com/android/keyguard/KeyguardSecurityContainer.java
 @@ -33,7 +33,6 @@ import android.app.AlertDialog;
@@ -310,17 +308,18 @@ index bace9324ac9..a6a85b61a80 100644
      }
  
      public void setSecurityCallback(SecurityCallback callback) {
-@@ -525,9 +517,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
+@@ -525,10 +517,6 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
  
          // Consume bottom insets because we're setting the padding locally (for IME and navbar.)
          int inset;
 -        int minBottomMargin = mHasFod && mUpdateMonitor.isFingerprintDetectionRunning() ?
 -                getResources().getDimensionPixelSize(
 -                        R.dimen.kg_security_container_min_bottom_margin) : 0;
- 
+-
          if (sNewInsetsMode == NEW_INSETS_MODE_FULL) {
              int bottomInset = insets.getInsetsIgnoringVisibility(systemBars()).bottom;
-@@ -536,8 +525,7 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
+             int imeInset = insets.getInsets(ime()).bottom;
+@@ -536,8 +524,7 @@ public class KeyguardSecurityContainer extends FrameLayout implements KeyguardSe
          } else {
              inset = insets.getSystemWindowInsetBottom();
          }
@@ -403,18 +402,10 @@ index 1a86a999135..9e070045033 100644
          mIndicatorView.setText(R.string.fingerprint_dialog_touch_sensor);
          mIndicatorView.setTextColor(mTextColorHint);
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java b/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
-index f16533ec440..1a8c0ce1f2a 100644
+index f16533ec440..347284573fc 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
-@@ -28,7 +28,6 @@ import android.annotation.Nullable;
- import android.annotation.StringRes;
- import android.content.Context;
- import android.content.pm.ApplicationInfo;
--import android.content.pm.PackageManager;
- import android.graphics.drawable.Drawable;
- import android.hardware.biometrics.BiometricPrompt;
- import android.os.Bundle;
-@@ -46,12 +45,8 @@ import android.widget.LinearLayout;
+@@ -46,12 +46,8 @@ import android.widget.LinearLayout;
  import android.widget.TextView;
  
  import com.android.internal.annotations.VisibleForTesting;
@@ -427,7 +418,7 @@ index f16533ec440..1a8c0ce1f2a 100644
  import java.lang.annotation.Retention;
  import java.lang.annotation.RetentionPolicy;
  import java.util.ArrayList;
-@@ -197,8 +192,6 @@ public abstract class AuthBiometricView extends LinearLayout {
+@@ -197,8 +193,6 @@ public abstract class AuthBiometricView extends LinearLayout {
      protected boolean mDialogSizeAnimating;
      protected Bundle mSavedState;
  
@@ -436,7 +427,7 @@ index f16533ec440..1a8c0ce1f2a 100644
      protected final PackageManager mPackageManager;
  
      /**
-@@ -269,10 +262,6 @@ public abstract class AuthBiometricView extends LinearLayout {
+@@ -269,10 +263,6 @@ public abstract class AuthBiometricView extends LinearLayout {
  
          mAccessibilityManager = context.getSystemService(AccessibilityManager.class);
  
@@ -447,7 +438,7 @@ index f16533ec440..1a8c0ce1f2a 100644
          mResetErrorRunnable = () -> {
              updateState(getStateForAfterError());
              handleResetAfterError();
-@@ -761,22 +750,9 @@ public abstract class AuthBiometricView extends LinearLayout {
+@@ -761,22 +751,9 @@ public abstract class AuthBiometricView extends LinearLayout {
              final View child = getChildAt(i);
  
              if (child.getId() == R.id.biometric_icon) {
@@ -1570,6 +1561,97 @@ index 13d2dc256ed..96dae9c8ad9 100644
                  case MSG_SET_BLOCKED_GESTURAL_NAVIGATION:
                      for (int i = 0; i < mCallbacks.size(); i++) {
                          mCallbacks.get(i).setBlockedGesturalNavigation((Boolean) msg.obj);
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+index ba21cd2fce5..0f37798effa 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/KeyguardIndicationController.java
+@@ -84,7 +84,6 @@ import javax.inject.Inject;
+ import javax.inject.Singleton;
+ 
+ import lineageos.app.LineageContextConstants;
+-import vendor.lineage.biometrics.fingerprint.inscreen.V1_0.IFingerprintInscreen;
+ 
+ /**
+  * Controls the indications and error messages shown on the Keyguard
+@@ -117,7 +116,6 @@ public class KeyguardIndicationController implements StateListener,
+     private KeyguardIndicationTextView mDisclosure;
+     private LottieAnimationView mChargingIndicationView;
+     private int mChargingIndication = 1;
+-    private int mFODPositionY = 0;
+     private final IBatteryStats mBatteryInfo;
+     private final SettableWakeLock mWakeLock;
+     private final DockManager mDockManager;
+@@ -228,17 +226,6 @@ public class KeyguardIndicationController implements StateListener,
+         mChargingIndicationView = (LottieAnimationView) indicationArea.findViewById(
+                 R.id.charging_indication);
+         updateChargingIndicationStyle();
+-        if (hasActiveInDisplayFp()) {
+-            try {
+-                IFingerprintInscreen daemon = IFingerprintInscreen.getService();
+-                mFODPositionY = daemon.getPositionY();
+-            } catch (RemoteException e) {
+-                // do nothing
+-            }
+-            if (mFODPositionY <= 0) {
+-                mFODPositionY = 0;
+-            }
+-        }
+         mDisclosure = indicationArea.findViewById(R.id.keyguard_indication_enterprise_disclosure);
+         mDisclosureMaxAlpha = mDisclosure.getAlpha();
+         updateIndication(false /* animate */);
+@@ -590,37 +577,6 @@ public class KeyguardIndicationController implements StateListener,
+ 
+     private void updateChargingIndication() {
+         if (mChargingIndication > 0 && !mDozing && mBatteryPresent && mPowerPluggedIn) {
+-            if (hasActiveInDisplayFp()) {
+-                if (mFODPositionY != 0) {
+-                    // Get screen height
+-                    WindowManager windowManager = mContext.getSystemService(WindowManager.class);
+-                    Display defaultDisplay = windowManager.getDefaultDisplay();
+-                    Point size = new Point();
+-                    defaultDisplay.getRealSize(size);
+-                    int screenHeight = size.y;
+-                    // Correct FOD position if cutout is hidden
+-                    int statusbarHeight = mContext.getResources().getDimensionPixelSize(
+-                            com.android.internal.R.dimen.status_bar_height_portrait);
+-                    boolean cutoutMasked = mContext.getResources().getBoolean(
+-                            com.android.internal.R.bool.config_maskMainBuiltInDisplayCutout);
+-                    int fodPositionY = mFODPositionY;
+-                    if (cutoutMasked) {
+-                        fodPositionY = mFODPositionY - statusbarHeight;
+-                    }
+-                    // Get indication text height
+-                    int textViewHeight = mTextView.getMeasuredHeight();
+-                    // Get bottom margin height
+-                    int marginBottom = mContext.getResources().getDimensionPixelSize(
+-                            R.dimen.keyguard_indication_margin_bottom_fingerprint_in_display);
+-                    // Calculate charging indication margin
+-                    int animationMargin = (screenHeight - fodPositionY) - (textViewHeight + marginBottom) + 10;
+-                    // Set position of charging indication
+-                    ViewGroup.MarginLayoutParams params =
+-                            (ViewGroup.MarginLayoutParams) mChargingIndicationView.getLayoutParams();
+-                    params.setMargins(0, 0, 0, animationMargin);
+-                    mChargingIndicationView.setLayoutParams(params);
+-                }
+-            }
+             mChargingIndicationView.setVisibility(View.VISIBLE);
+             mChargingIndicationView.playAnimation();
+         } else {
+@@ -628,14 +584,6 @@ public class KeyguardIndicationController implements StateListener,
+         }
+     }
+ 
+-    private boolean hasActiveInDisplayFp() {
+-        PackageManager packageManager = mContext.getPackageManager();
+-        boolean hasInDisplayFingerprint = packageManager.hasSystemFeature(LineageContextConstants.Features.FOD);
+-        int userId = KeyguardUpdateMonitor.getCurrentUser();
+-        FingerprintManager fpm = (FingerprintManager) mContext.getSystemService(Context.FINGERPRINT_SERVICE);
+-        return hasInDisplayFingerprint && fpm.getEnrolledFingerprints(userId).size() > 0;
+-    }
+-
+     // animates textView - textView moves up and bounces down
+     private void animateText(KeyguardIndicationTextView textView, String indication) {
+         int yTranslation = mContext.getResources().getInteger(
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/notification/ActivityLaunchAnimator.java b/packages/SystemUI/src/com/android/systemui/statusbar/notification/ActivityLaunchAnimator.java
 index 1e1655256b1..382715a3fb7 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/notification/ActivityLaunchAnimator.java
@@ -1817,7 +1899,7 @@ index fa2121ecde6..9f431398d42 100644
          if (mNotificationShadeWindowViewController == null ||
              mNotificationShadeWindowViewController.getBarTransitions() == null) return;
 diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
-index 739b4dbe3ed..4c0d765d42c 100644
+index 739b4dbe3ed..ab820702d19 100644
 --- a/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
 +++ b/packages/SystemUI/src/com/android/systemui/statusbar/phone/StatusBarKeyguardViewManager.java
 @@ -127,7 +127,6 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
@@ -1844,10 +1926,11 @@ index 739b4dbe3ed..4c0d765d42c 100644
          boolean bouncerDismissible = !mBouncer.isFullscreenBouncer();
          boolean remoteInputActive = mRemoteInputActive;
  
-@@ -889,10 +886,8 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
+@@ -888,11 +885,8 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
+         if ((showing && !occluded) != (mLastShowing && !mLastOccluded) || mFirstUpdate) {
              mKeyguardUpdateManager.onKeyguardVisibilityChanged(showing && !occluded);
          }
- 
+-
 -        boolean bouncerVisible = bouncerShowing || bouncerInTransit;
 -        boolean lastBouncerVisible = mLastBouncerShowing || mLastBouncerInTransit;
 -        if (bouncerVisible != lastBouncerVisible || mFirstUpdate) {
@@ -1857,7 +1940,7 @@ index 739b4dbe3ed..4c0d765d42c 100644
          }
  
          mFirstUpdate = false;
-@@ -900,7 +895,6 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
+@@ -900,7 +894,6 @@ public class StatusBarKeyguardViewManager implements RemoteInputController.Callb
          mLastGlobalActionsVisible = mGlobalActionsVisible;
          mLastOccluded = occluded;
          mLastBouncerShowing = bouncerShowing;
@@ -1970,10 +2053,10 @@ index 55e109e3329..7ad86fae59f 100644
  }
  
 diff --git a/services/core/java/com/android/server/biometrics/BiometricServiceBase.java b/services/core/java/com/android/server/biometrics/BiometricServiceBase.java
-index 7b5b1a873a0..aa50e18071b 100644
+index 5bb4d272eae..70369732fea 100644
 --- a/services/core/java/com/android/server/biometrics/BiometricServiceBase.java
 +++ b/services/core/java/com/android/server/biometrics/BiometricServiceBase.java
-@@ -1050,7 +1050,7 @@ public abstract class BiometricServiceBase extends SystemService
+@@ -1047,7 +1047,7 @@ public abstract class BiometricServiceBase extends SystemService
      /**
       * @return true if this is keyguard package
       */
@@ -1983,10 +2066,10 @@ index 7b5b1a873a0..aa50e18071b 100644
      }
  
 diff --git a/services/core/java/com/android/server/biometrics/fingerprint/FingerprintService.java b/services/core/java/com/android/server/biometrics/fingerprint/FingerprintService.java
-index c0ce72e1438..43e9c4a80e1 100644
+index c0ce72e1438..03877e0e2b2 100644
 --- a/services/core/java/com/android/server/biometrics/fingerprint/FingerprintService.java
 +++ b/services/core/java/com/android/server/biometrics/fingerprint/FingerprintService.java
-@@ -81,10 +81,6 @@ import org.json.JSONArray;
+@@ -81,17 +81,12 @@ import org.json.JSONArray;
  import org.json.JSONException;
  import org.json.JSONObject;
  
@@ -1997,7 +2080,14 @@ index c0ce72e1438..43e9c4a80e1 100644
  import java.io.File;
  import java.io.FileDescriptor;
  import java.io.PrintWriter;
-@@ -113,9 +109,6 @@ public class FingerprintService extends BiometricServiceBase {
+ import java.util.ArrayList;
+ import java.util.Collections;
+ import java.util.List;
+-import java.util.NoSuchElementException;
+ import java.util.concurrent.CopyOnWriteArrayList;
+ 
+ /**
+@@ -113,9 +108,6 @@ public class FingerprintService extends BiometricServiceBase {
      private static final long FAIL_LOCKOUT_TIMEOUT_MS = 30 * 1000;
      private static final String KEY_LOCKOUT_RESET_USER = "lockout_reset_user";
  
@@ -2007,7 +2097,7 @@ index c0ce72e1438..43e9c4a80e1 100644
      private final class ResetFailedAttemptsForUserRunnable implements Runnable {
          @Override
          public void run() {
-@@ -650,7 +643,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -650,7 +642,6 @@ public class FingerprintService extends BiometricServiceBase {
  
      @GuardedBy("this")
      private IBiometricsFingerprint mDaemon;
@@ -2015,7 +2105,7 @@ index c0ce72e1438..43e9c4a80e1 100644
      private final SparseBooleanArray mTimedLockoutCleared;
      private final SparseIntArray mFailedAttempts;
      private final AlarmManager mAlarmManager;
-@@ -672,21 +664,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -672,21 +663,6 @@ public class FingerprintService extends BiometricServiceBase {
                          new Fingerprint(getBiometricUtils().getUniqueName(getContext(), groupId),
                                  groupId, fingerId, deviceId);
                  FingerprintService.super.handleEnrollResult(fingerprint, remaining);
@@ -2037,7 +2127,7 @@ index c0ce72e1438..43e9c4a80e1 100644
              });
          }
  
-@@ -698,16 +675,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -698,16 +674,6 @@ public class FingerprintService extends BiometricServiceBase {
          @Override
          public void onAcquired_2_2(long deviceId, int acquiredInfo, int vendorCode) {
              mHandler.post(() -> {
@@ -2054,7 +2144,7 @@ index c0ce72e1438..43e9c4a80e1 100644
                  FingerprintService.super.handleAcquired(deviceId, acquiredInfo, vendorCode);
              });
          }
-@@ -727,29 +694,12 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -727,29 +693,12 @@ public class FingerprintService extends BiometricServiceBase {
  
                  final Fingerprint fp = new Fingerprint("", groupId, fingerId, deviceId);
                  FingerprintService.super.handleAuthenticated(authenticated, fp, token);
@@ -2084,7 +2174,7 @@ index c0ce72e1438..43e9c4a80e1 100644
                  FingerprintService.super.handleError(deviceId, error, vendorCode);
                  // TODO: this chunk of code should be common to all biometric services
                  if (error == BiometricConstants.BIOMETRIC_ERROR_HW_UNAVAILABLE) {
-@@ -797,21 +747,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -797,21 +746,6 @@ public class FingerprintService extends BiometricServiceBase {
                  Slog.w(TAG, "authenticate(): no fingerprint HAL!");
                  return ERROR_ESRCH;
              }
@@ -2106,7 +2196,7 @@ index c0ce72e1438..43e9c4a80e1 100644
              return daemon.authenticate(operationId, groupId);
          }
  
-@@ -822,13 +757,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -822,13 +756,6 @@ public class FingerprintService extends BiometricServiceBase {
                  Slog.w(TAG, "cancel(): no fingerprint HAL!");
                  return ERROR_ESRCH;
              }
@@ -2120,7 +2210,7 @@ index c0ce72e1438..43e9c4a80e1 100644
              return daemon.cancel();
          }
  
-@@ -860,21 +788,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -860,21 +787,6 @@ public class FingerprintService extends BiometricServiceBase {
                  Slog.w(TAG, "enroll(): no fingerprint HAL!");
                  return ERROR_ESRCH;
              }
@@ -2142,7 +2232,7 @@ index c0ce72e1438..43e9c4a80e1 100644
              return daemon.enroll(cryptoToken, groupId, timeout);
          }
  
-@@ -894,13 +807,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -894,13 +806,6 @@ public class FingerprintService extends BiometricServiceBase {
          context.registerReceiver(mLockoutReceiver, new IntentFilter(getLockoutResetIntent()),
                  getLockoutBroadcastPermission(), null /* handler */);
          mLockPatternUtils = new LockPatternUtils(context);
@@ -2156,7 +2246,7 @@ index c0ce72e1438..43e9c4a80e1 100644
      }
  
      @Override
-@@ -985,7 +891,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -985,7 +890,6 @@ public class FingerprintService extends BiometricServiceBase {
  
                      daemon.setActiveGroup(userId, fpDir.getAbsolutePath());
                      mCurrentUserId = userId;
@@ -2164,7 +2254,7 @@ index c0ce72e1438..43e9c4a80e1 100644
                  }
                  mAuthenticatorIds.put(userId,
                          hasEnrolledBiometrics(userId) ? daemon.getAuthenticatorId() : 0L);
-@@ -1123,26 +1028,6 @@ public class FingerprintService extends BiometricServiceBase {
+@@ -1123,26 +1027,6 @@ public class FingerprintService extends BiometricServiceBase {
          return mDaemon;
      }
  
@@ -2224,3 +2314,6 @@ index c071105908a..602140c1425 100644
      @Override
      public void setBlockedGesturalNavigation(boolean blocked) {
          if (mBar != null) {
+-- 
+2.25.1
+
