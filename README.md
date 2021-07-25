@@ -29,3 +29,28 @@ Be sure to update the cloned repos from time to time!
 ---
 
 Note: A-only and VNDKLite targets are now generated from AB images - refer to [sas-creator](https://github.com/phhusson/sas-creator).
+
+---
+
+## How to make ROM-specific patch? ##
+
+Sometimes you have to create patch to fix conflict.  
+Step to create patch:
+
+1. Manually patch
+```
+    BL=$PWD/treble_build_floko  
+    cd frameworks/base  
+    git am $BL/patches/F0001-Squashed-revert-of-LOS-FOD-implementation.patch
+```
+2. When patch error happens, you can re-apply patch by this command. If you want to manually apply changes, skip this.
+```
+    patch -p1 < .git/rebase-apply/patch
+```
+3. Fix conflict and commit
+
+4. Make a patch:
+```
+    git format-patch -n HEAD^
+```
+5. Move the patch to treble_build_floko/patches and replace patch file name in buildbot_treble.sh
