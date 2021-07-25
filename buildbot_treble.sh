@@ -125,9 +125,10 @@ cd ../../..
 cd system/sepolicy
 git am $BL/patches/0001-Revert-sepolicy-Relabel-wifi.-properties-as-wifi_pro.patch
 cd ../..
-#cd vendor/lineage
+cd vendor/lineage
 #git am $BL/patches/0001-build_soong-Disable-generated_kernel_headers.patch
-#cd ../..
+git am $BL/patches/F0001-Change-to-TARGET_DEVICE.patch
+cd ../..
 echo ""
 
 echo "CHECK PATCH STATUS NOW!"
