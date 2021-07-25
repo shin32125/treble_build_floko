@@ -90,14 +90,12 @@ git am $BL/patches/0001-build-Don-t-handle-apns-conf.patch
 git revert 78c28df40f72fdcbe3f82a83828060ad19765fa1 --no-edit # mainline_system: Exclude vendor.lineage.power@1.0 from artifact path requirements
 cd ../..
 cd device/phh/treble
-git revert 82b15278bad816632dcaeaed623b569978e9840d --no-edit # Update lineage.mk for LineageOS 16.0
+#git revert 82b15278bad816632dcaeaed623b569978e9840d --no-edit # Update lineage.mk for LineageOS 16.0
 git am $BL/patches/0001-Remove-fsck-SELinux-labels.patch
 git am $BL/patches/0001-treble-Add-overlay-lineage.patch
 git am $BL/patches/0001-treble-Don-t-specify-config_wallpaperCropperPackage.patch
 git am $BL/patches/0001-treble-Don-t-handle-apns-conf.patch
 git am $BL/patches/0001-add-offline-charger-sepolicy.patch
-echo "PRODUCT_SHIPPING_API_LEVEL := 30" >> lineage.mk
-git commit -a -m "Add API level"
 cd ../../..
 cd frameworks/av
 git revert 5a5606dbd92f01de322c797a7128fce69902d067 --no-edit # camera: Allow devices to load custom CameraParameter code
