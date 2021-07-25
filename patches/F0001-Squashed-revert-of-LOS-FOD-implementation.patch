@@ -1853,7 +1853,7 @@ index 739b4dbe3ed..4c0d765d42c 100644
 -        if (bouncerVisible != lastBouncerVisible || mFirstUpdate) {
 -            mKeyguardUpdateManager.sendKeyguardBouncerChanged(bouncerVisible);
 +        if (bouncerShowing != mLastBouncerShowing || mFirstUpdate) {
-++            mKeyguardUpdateManager.sendKeyguardBouncerChanged(bouncerShowing);
++            mKeyguardUpdateManager.sendKeyguardBouncerChanged(bouncerShowing);
          }
  
          mFirstUpdate = false;
