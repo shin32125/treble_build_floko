@@ -127,12 +127,12 @@ git am $BL/patches/0001-Revert-sepolicy-Relabel-wifi.-properties-as-wifi_pro.pat
 cd ../..
 cd vendor/lineage
 #git am $BL/patches/0001-build_soong-Disable-generated_kernel_headers.patch
-git am $BL/patches/F0001-Change-to-TARGET_DEVICE.patch
+git am $BL/patches/F0001-Fix-changelog-error.patch
 cd ../..
 echo ""
 
 echo "CHECK PATCH STATUS NOW!"
-sleep 5
+#sleep 5
 echo ""
 
 export WITHOUT_CHECK_API=true

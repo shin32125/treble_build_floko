@@ -1,0 +1,33 @@
+From ed8d14bbae31acc609fd609b6c1c99522b9d804b Mon Sep 17 00:00:00 2001
+From: AndroPlus <hosigumayuugi@gmail.com>
+Date: Mon, 26 Jul 2021 19:08:42 +0900
+Subject: [PATCH 1/1] Fix changelog error
+
+---
+ build/tools/changelog.sh | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/build/tools/changelog.sh b/build/tools/changelog.sh
+index a1d14947..48c67b9f 100755
+--- a/build/tools/changelog.sh
++++ b/build/tools/changelog.sh
+@@ -17,7 +17,7 @@
+ 
+ Changelog=Changelog.txt
+ 
+-DEVICE=$(echo $TARGET_PRODUCT | sed -e 's/lineage_//g')
++DEVICE=$(echo $TARGET_PRODUCT | sed -e 's/treble_arm64_bvN/phhgsi_arm64_ab/g')
+ 
+ if [ -f $Changelog ];
+ then
+@@ -56,5 +56,7 @@ done
+ 
+ sed -i 's/project/   */g' $Changelog
+ 
++Changelog=$(readlink -f $Changelog)
++
+ cp $Changelog $OUT_DIR/target/product/$DEVICE/system/etc/
+ mv $Changelog $OUT_DIR/target/product/$DEVICE/
+-- 
+2.25.1
+
