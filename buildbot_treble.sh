@@ -6,6 +6,13 @@ echo "ATTENTION: this script syncs repo on each run"
 echo ""
 #sleep 5
 
+export LANG=C
+export LC_ALL=C.UTF-8
+export ALLOW_MISSING_DEPENDENCIES=true
+export SOONG_ALLOW_MISSING_DEPENDENCIES=true
+export CCACHE_DIR=~/ccache
+export USE_CCACHE=1
+
 # Abort early on error
 set -eE
 trap '(\
