@@ -1,4 +1,4 @@
-From dc0eaf8e9d0d6ebb8848929e789d9196c508b12b Mon Sep 17 00:00:00 2001
+From 00a280cca8bd07fca0b0c08378ecbea2f08b2dfd Mon Sep 17 00:00:00 2001
 From: AndroPlus <hosigumayuugi@gmail.com>
 Date: Sun, 25 Jul 2021 15:21:04 +0900
 Subject: [PATCH 1/1] Squashed revert of LOS FOD implementation
@@ -18,7 +18,7 @@ Subject: [PATCH 1/1] Squashed revert of LOS FOD implementation
  .../keyguard/KeyguardSecurityContainer.java   |  15 +-
  .../keyguard/KeyguardUpdateMonitor.java       |   9 +-
  .../AuthBiometricFingerprintView.java         |  13 -
- .../biometrics/AuthBiometricView.java         |  29 +-
+ .../biometrics/AuthBiometricView.java         |  27 +-
  .../systemui/biometrics/FODCircleView.java    | 742 ------------------
  .../biometrics/FODCircleViewImpl.java         | 174 ----
  .../biometrics/FODCircleViewImplCallback.java |  25 -
@@ -36,7 +36,7 @@ Subject: [PATCH 1/1] Squashed revert of LOS FOD implementation
  .../biometrics/BiometricServiceBase.java      |   2 +-
  .../fingerprint/FingerprintService.java       | 116 ---
  .../statusbar/StatusBarManagerService.java    |  22 -
- 32 files changed, 20 insertions(+), 1433 deletions(-)
+ 32 files changed, 20 insertions(+), 1431 deletions(-)
  delete mode 100644 packages/SystemUI/res-keyguard/values/lineage_dimens.xml
  delete mode 100644 packages/SystemUI/res/drawable/fod_icon_default.xml
  delete mode 100644 packages/SystemUI/src/com/android/systemui/biometrics/FODCircleView.java
@@ -402,7 +402,7 @@ index 1a86a999135..9e070045033 100644
          mIndicatorView.setText(R.string.fingerprint_dialog_touch_sensor);
          mIndicatorView.setTextColor(mTextColorHint);
 diff --git a/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java b/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
-index f16533ec440..347284573fc 100644
+index f16533ec440..a4fb63466d1 100644
 --- a/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
 +++ b/packages/SystemUI/src/com/android/systemui/biometrics/AuthBiometricView.java
 @@ -46,12 +46,8 @@ import android.widget.LinearLayout;
@@ -427,18 +427,16 @@ index f16533ec440..347284573fc 100644
      protected final PackageManager mPackageManager;
  
      /**
-@@ -269,10 +263,6 @@ public abstract class AuthBiometricView extends LinearLayout {
- 
+@@ -270,8 +264,6 @@ public abstract class AuthBiometricView extends LinearLayout {
          mAccessibilityManager = context.getSystemService(AccessibilityManager.class);
  
--        mPackageManager = context.getPackageManager();
+         mPackageManager = context.getPackageManager();
 -        mHasFod = mPackageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT) &&
 -                mPackageManager.hasSystemFeature(LineageContextConstants.Features.FOD);
--
+ 
          mResetErrorRunnable = () -> {
              updateState(getStateForAfterError());
-             handleResetAfterError();
-@@ -761,22 +751,9 @@ public abstract class AuthBiometricView extends LinearLayout {
+@@ -761,22 +753,9 @@ public abstract class AuthBiometricView extends LinearLayout {
              final View child = getChildAt(i);
  
              if (child.getId() == R.id.biometric_icon) {
