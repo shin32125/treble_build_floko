@@ -128,6 +128,7 @@ cd ../..
 cd vendor/lineage
 #git am $BL/patches/0001-build_soong-Disable-generated_kernel_headers.patch
 git am $BL/patches/F0001-Fix-changelog-error.patch
+git am $BL/patches/F0002-Remove-su.patch
 cd ../..
 echo ""
 
