@@ -140,7 +140,7 @@ export WITH_SU=false
 mkdir -p ~/build-output/
 
 buildVariant() {
-    lunch ${1}-userdebug
+    lunch ${1}-user
     make installclean
     make -j$(nproc --all) systemimage
     make vndk-test-sepolicy
