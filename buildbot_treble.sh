@@ -65,6 +65,7 @@ echo ""
 echo "Applying universal patches"
 cd build/make
 git am $BL/patches/0001-Make-broken-copy-headers-the-default.patch
+git am $BL/patches/F0002-Remove-su-even-on-userdebug.patch
 cd ../..
 cd frameworks/base
 #git am $BL/patches/0001-UI-Revive-navbar-layout-tuning-via-sysui_nav_bar-tun.patch

@@ -1,0 +1,28 @@
+From 0bc0c86d7e3e46addbfb9a9ea1c531739f9426fd Mon Sep 17 00:00:00 2001
+From: AndroPlus <hosigumayuugi@gmail.com>
+Date: Sat, 31 Jul 2021 16:34:34 +0900
+Subject: [PATCH 1/1] Remove su even on userdebug
+
+---
+ target/product/base_system.mk | 5 -----
+ 1 file changed, 5 deletions(-)
+
+diff --git a/target/product/base_system.mk b/target/product/base_system.mk
+index 5b118eee7..f38eb2b99 100644
+--- a/target/product/base_system.mk
++++ b/target/product/base_system.mk
+@@ -386,11 +386,6 @@ PRODUCT_PACKAGES_DEBUG := \
+     unwind_reg_info \
+     unwind_symbols \
+ 
+-ifeq ($(LINEAGE_BUILD),)
+-PRODUCT_PACKAGES_DEBUG += \
+-    su
+-endif
+-
+ # The set of packages whose code can be loaded by the system server.
+ PRODUCT_SYSTEM_SERVER_APPS += \
+     SettingsProvider \
+-- 
+2.25.1
+
