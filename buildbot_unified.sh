@@ -4,7 +4,14 @@ echo "LineageOS 18.x Unified Buildbot"
 echo "ATTENTION: this script syncs repo on each run"
 echo "Executing in 5 seconds - CTRL-C to exit"
 echo ""
-sleep 5
+# sleep 5
+
+export LANG=C
+export LC_ALL=C.UTF-8
+export ALLOW_MISSING_DEPENDENCIES=true
+export SOONG_ALLOW_MISSING_DEPENDENCIES=true
+export CCACHE_DIR=~/ccache
+export USE_CCACHE=1
 
 if [ $# -lt 2 ]
 then
@@ -40,11 +47,11 @@ echo\
 START=`date +%s`
 BUILD_DATE="$(date +%Y%m%d)"
 WITHOUT_CHECK_API=true
-WITH_SU=true
+WITH_SU=false
 
 echo "Preparing local manifests"
 mkdir -p .repo/local_manifests
-cp ./lineage_build_unified/local_manifests_${MODE}/*.xml .repo/local_manifests
+cp ./treble_build_floko/local_manifests_${MODE}/*.xml .repo/local_manifests
 echo ""
 
 echo "Syncing repos"
@@ -55,6 +62,8 @@ echo "Setting up build environment"
 source build/envsetup.sh &> /dev/null
 mkdir -p ~/build-output
 echo ""
+
+rm -rf vendor/seedvault/
 
 repopick 289372 # Messaging: Add "Mark as read" quick action for message notifications
 
@@ -86,21 +95,21 @@ finalize_treble() {
 
 build_device() {
     brunch ${1}
-    mv $OUT/lineage-*.zip ~/build-output/lineage-18.1-$BUILD_DATE-UNOFFICIAL-${1}$($PERSONAL && echo "-personal" || echo "").zip
+    mv $OUT/FlokoROM-*.zip ~/build-output/FlokoROM-v4-$BUILD_DATE-UNOFFICIAL-${1}$($PERSONAL && echo "-personal" || echo "").zip
 }
 
 build_treble() {
     case "${1}" in
-        ("32B") TARGET=treble_arm_bvS;;
-        ("A64B") TARGET=treble_a64_bvS;;
-        ("64B") TARGET=treble_arm64_bvS;;
+        ("32B") TARGET=treble_arm_bvN;;
+        ("A64B") TARGET=treble_a64_bvN;;
+        ("64B") TARGET=treble_arm64_bvN;;
         (*) echo "Invalid target - exiting"; exit 1;;
     esac
     lunch ${TARGET}-userdebug
     make installclean
     make -j$(nproc --all) systemimage
     make vndk-test-sepolicy
-    mv $OUT/system.img ~/build-output/lineage-18.1-$BUILD_DATE-UNOFFICIAL-${TARGET}$(${PERSONAL} && echo "-personal" || echo "").img
+    mv $OUT/system.img ~/build-output/FlokoROM-v4-$BUILD_DATE-UNOFFICIAL-${TARGET}$(${PERSONAL} && echo "-personal" || echo "").img
 }
 
 echo "Applying patches"
