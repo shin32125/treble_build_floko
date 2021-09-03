@@ -103,6 +103,7 @@ build_treble() {
         ("32B") TARGET=treble_arm_bvN;;
         ("A64B") TARGET=treble_a64_bvN;;
         ("64B") TARGET=treble_arm64_bvN;;
+        ("64B") TARGET=treble_arm64_bgN;;
         (*) echo "Invalid target - exiting"; exit 1;;
     esac
     lunch ${TARGET}-userdebug
