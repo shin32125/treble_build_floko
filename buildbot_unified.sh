@@ -49,10 +49,7 @@ BUILD_DATE="$(date +%Y%m%d)"
 WITHOUT_CHECK_API=true
 WITH_SU=false
 
-echo "Preparing local manifests"
-mkdir -p .repo/local_manifests
-cp ./treble_build_floko/local_manifests_${MODE}/*.xml .repo/local_manifests
-echo ""
+
 
 echo "Syncing repos"
 repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
