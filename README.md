@@ -17,7 +17,7 @@ Initialize your FlokoROM workspace:
 
 Clone both this and the patches repos:
 
-    git clone https://github.com/FlokoROM-GSI/treble_build_floko -b 11.0-unified
+    git clone https://github.com/shin32125/treble_build_floko -b 11.0-unified
     git clone https://github.com/FlokoROM-GSI/lineage_patches_unified -b 11.0-unified
 
 Finally, start the build script - for example, to build for all supported archs:
