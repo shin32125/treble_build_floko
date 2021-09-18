@@ -13,7 +13,7 @@ Create a new working directory for your FlokoROM build and navigate to it:
 
 Initialize your FlokoROM workspace:
 
-    repo init -u https://github.com/FlokoROM/manifesto.git -b 11.0
+    repo init -u https://github.com/shin32125/manifesto.git -b 11.0
 
 Clone both this and the patches repos:
 
