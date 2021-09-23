@@ -2,4 +2,5 @@
 <manifest>
   <project name="Xiaomi-renoir/device_xiaomi_renoir" path="device/xiaomi/renoir" remote="github" revision="11.0-v2" />
   <project name="Xiaomi-renoir/vendor_xiaomi_renoir" path="vendor/xiaomi/renoir" remote="github" revision="11.0-v2" />
+  <project name="ArixElo/kernel_xiaomi_sm8350" path="kernel/xiaomi/sm8350" remote="github" revision="renoir" />
 </manifest>
