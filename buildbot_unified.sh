@@ -109,15 +109,17 @@ build_treble() {
     make vndk-test-sepolicy
     mv $OUT/system.img ~/build-output/FlokoROM-v4-$BUILD_DATE-UNOFFICIAL-${TARGET}$(${PERSONAL} && echo "-personal" || echo "").img
 }
-
-echo "Applying patches"
-prep_${MODE}
-apply_patches patches_platform
-apply_patches patches_${MODE}
-if ${PERSONAL}
+if [ ${MODE} != "device" ]
 then
-    apply_patches patches_platform_personal
-    apply_patches patches_${MODE}_personal
+    echo "Applying patches"
+    prep_${MODE}
+    apply_patches patches_platform
+    apply_patches patches_${MODE}
+    if ${PERSONAL}
+    then
+        apply_patches patches_platform_personal
+        apply_patches patches_${MODE}_personal
+    fi
 fi
 finalize_${MODE}
 echo ""
