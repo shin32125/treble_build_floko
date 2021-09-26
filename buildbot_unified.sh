@@ -51,6 +51,10 @@ WITH_SU=false
 
 echo "Preparing local manifests"
 mkdir -p .repo/local_manifests
+if [ ${MODE} == "device" ]
+then
+    rm -rf .repo/local_manifests/manifest.xml
+fi
 cp ./treble_build_floko/local_manifests_${MODE}/*.xml .repo/local_manifests
 echo ""
 
