@@ -49,7 +49,14 @@ BUILD_DATE="$(date +%Y%m%d)"
 WITHOUT_CHECK_API=true
 WITH_SU=false
 
-
+echo "Preparing local manifests"
+mkdir -p .repo/local_manifests
+if [ ${MODE} == "device" ]
+then
+    rm -rf .repo/local_manifests/manifest.xml
+fi
+cp ./treble_build_floko/local_manifests_${MODE}/*.xml .repo/local_manifests
+echo ""
 
 echo "Syncing repos"
 repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
@@ -98,7 +105,6 @@ build_treble() {
         ("32B") TARGET=treble_arm_bvN;;
         ("A64B") TARGET=treble_a64_bvN;;
         ("64B") TARGET=treble_arm64_bvN;;
-        ("64BG") TARGET=treble_arm64_bgN;;
         (*) echo "Invalid target - exiting"; exit 1;;
     esac
     lunch ${TARGET}-userdebug
